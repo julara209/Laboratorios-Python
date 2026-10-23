@@ -1,8 +1,8 @@
 # Repositorio de laboratorios de Python
 
-- **Aprendiz:** [Angie Espinosa]
-- **Ficha:** [3388087]
-
+- **Aprendiz:** Angie Espinosa
+- **Ficha:** 3388087
+  
 Repositorio acumulativo con los cuatro laboratorios de Python. Cada carpeta conserva sus
 ejercicios y su proyecto final; no se reemplazan las versiones anteriores.
 
