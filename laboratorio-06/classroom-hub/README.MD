@@ -16,7 +16,9 @@ El objetivo del proyecto es practicar y comprender el recorrido **URL → vista 
 1. Clona el repositorio y entra en la carpeta:
 
    ```bash
-   git clone <URL-DEL-REPOSITORIO>
+   git clone https://github.com/julara209/Laboratorios-Python.git
+   cd laboratorios-python
+   cd laboratorio-06
    cd classroom-hub
    ```
 
@@ -107,24 +109,8 @@ classroom-hub/
         └── about.html
 ```
 
-## Qué todavía no incluye
-
-- Base de datos propia ni modelos (los recursos son datos de ejemplo definidos en `pages/views.py`).
-- Formularios.
-- Inicio de sesión ni usuarios.
-- Crear, editar o eliminar recursos (CRUD).
-- Archivos estáticos separados (el CSS está dentro de `base.html`).
-- Despliegue en producción (`runserver` es solo para desarrollo local).
-
-Estos temas se abordarán en los laboratorios siguientes, empezando por modelos, ORM, migraciones y el administrador de Django.
-
 ## Cómo se verificó
 
 - `python manage.py check` termina sin problemas.
 - `python manage.py test pages` supera las 5 pruebas.
 - Se comprobó manualmente la navegación entre las tres páginas, el estado "Coming soon" de un recurso no disponible, el mensaje de lista vacía y el `404` en `/not-found/`.
-
-## Notas de seguridad
-
-- No subas `.venv/`, `.env` ni `db.sqlite3` al repositorio (ya están en `.gitignore`).
-- `DEBUG=True` y la clave generada por Django son solo para el entorno de aprendizaje; no los uses en producción.
