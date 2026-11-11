@@ -1,0 +1,13 @@
+nombre = str(input("Ingresa tu nombre: "))
+ciudad = str(input("Ingresa tu ciudad: "))
+edad = int(input("Ingresa tu edad: "))
+estatura = float(input("Ingresa tu estatura: "))
+
+print(" ")
+print("=========================")
+print("      DATOS USUARIO      ")
+print("=========================")
+print("Nombre:", nombre)
+print("Ciudad:", ciudad)
+print("Edad:", edad, "años")
+print("Estatura: ", estatura)
