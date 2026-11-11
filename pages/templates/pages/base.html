@@ -59,6 +59,9 @@
             {% csrf_token %}
             <button type="submit">Log out</button>
         </form>
+        {% if perms.pages.view_resource %}
+           <a href="{% url 'pages:resource-review' %}">Review</a>
+        {% endif %}
     {% else %}
         <a href="{% url 'pages:login' %}">Log in</a>
         <a href="{% url 'pages:signup' %}">Sign up</a>

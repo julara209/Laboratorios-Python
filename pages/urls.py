@@ -22,4 +22,5 @@ urlpatterns = [
         name="logout",
     ),
     path("dashboard/", views.dashboard, name="dashboard"),
+    path("resources/review/", views.resource_review, name="resource-review"),
 ]
