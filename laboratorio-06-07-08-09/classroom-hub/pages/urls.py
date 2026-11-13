@@ -37,4 +37,9 @@ urlpatterns = [
         name="logout",
     ),
     path("dashboard/", views.dashboard, name="dashboard"),
+        path(
+        "resources/<int:pk>/edit/",
+        views.ResourceUpdateView.as_view(),
+        name="resource-update",
+    ),
 ]
