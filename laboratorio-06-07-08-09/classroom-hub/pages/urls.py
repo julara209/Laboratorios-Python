@@ -7,9 +7,7 @@ app_name = "pages"
 
 urlpatterns = [
     path("", views.home, name="home"),
-    path("about/", views.about, name="about"),
     path("resources/", views.resources, name="resources"),
-    path("resources/available/", views.available_resources, name="available"),
     path(
         "resources/review/",
         views.resource_review,
@@ -25,6 +23,18 @@ urlpatterns = [
         views.ResourceDetailView.as_view(),
         name="resource-detail",
     ),
+    path(
+        "resources/<int:pk>/edit/",
+        views.ResourceUpdateView.as_view(),
+        name="resource-update",
+    ),
+    path(
+        "resources/<int:pk>/delete/",
+        views.ResourceDeleteView.as_view(),
+        name="resource-delete",
+    ),
+        path("resources/available/", views.available_resources, name="available"),
+    path("about/", views.about, name="about"),
     path("accounts/signup/", views.signup, name="signup"),
     path(
         "accounts/login/",
@@ -37,14 +47,5 @@ urlpatterns = [
         name="logout",
     ),
     path("dashboard/", views.dashboard, name="dashboard"),
-        path(
-        "resources/<int:pk>/edit/",
-        views.ResourceUpdateView.as_view(),
-        name="resource-update",
-    ),
-        path(
-        "resources/<int:pk>/delete/",
-        views.ResourceDeleteView.as_view(),
-        name="resource-delete",
-    ),
+    
 ]

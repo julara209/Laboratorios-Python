@@ -12,10 +12,10 @@ from django.views.generic import (
     DetailView,
     UpdateView,
 )
+
 from .forms import ResourceForm
 from .models import Resource
 
-from django.views.generic import CreateView, DetailView, UpdateView
 
 def home(request):
     context = {
@@ -27,13 +27,6 @@ def home(request):
 def resources(request):
     context = {
         "resources": Resource.objects.select_related("category").all(),
-    }
-    return render(request, "pages/resources.html", context)
-
-
-def available_resources(request):
-    context = {
-        "resources": Resource.objects.filter(available=True).select_related("category"),
     }
     return render(request, "pages/resources.html", context)
 
@@ -80,6 +73,13 @@ def resource_review(request):
     }
     return render(request, "pages/review.html", context)
 
+def available_resources(request):
+    context = {
+        "resources": Resource.objects.select_related("category").filter(
+            available=True
+        ),
+    }
+    return render(request, "pages/resources.html", context)
 
 class ResourceDetailView(DetailView):
     model = Resource
@@ -98,6 +98,7 @@ class ResourceCreateView(
     permission_required = "pages.add_resource"
     success_url = reverse_lazy("pages:resources")
 
+
 class ResourceUpdateView(
     LoginRequiredMixin,
     PermissionRequiredMixin,
@@ -108,6 +109,7 @@ class ResourceUpdateView(
     template_name = "pages/resource_form.html"
     permission_required = "pages.change_resource"
     success_url = reverse_lazy("pages:resources")
+
 
 class ResourceDeleteView(
     LoginRequiredMixin,
