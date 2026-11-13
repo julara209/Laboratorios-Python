@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # ClassroomHub
 
 ClassroomHub es un portal de recursos de aprendizaje construido con Django (Laboratorios 6, 7, 8 y 9). Los recursos y categorías se guardan en una base de datos MariaDB/MySQL, se administran desde Django Admin y se muestran en páginas públicas de solo lectura.
