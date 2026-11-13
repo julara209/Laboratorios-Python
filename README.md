@@ -1,7 +1,7 @@
 <<<<<<< HEAD
 # ClassroomHub
 
-ClassroomHub es un portal de recursos de aprendizaje construido con Django (Laboratorios 6 y 7). Los recursos y categorías se guardan en una base de datos MariaDB/MySQL, se administran desde Django Admin y se muestran en páginas públicas de solo lectura.
+ClassroomHub es un portal de recursos de aprendizaje construido con Django (Laboratorios 6, 7, 8 y 9). Los recursos y categorías se guardan en una base de datos MariaDB/MySQL, se administran desde Django Admin y se muestran en páginas públicas de solo lectura.
 
 El recorrido que practica el proyecto es **URL → vista → plantilla → respuesta**, ahora con datos persistentes: **modelo → base de datos → vista → plantilla**.
 
@@ -109,12 +109,14 @@ classroom-hub/
 ├── config/                  # Configuración del proyecto
 └── pages/
     ├── models.py            # Category y Resource
+    ├── forms.py             # ResourceForm (ModelForm)
     ├── admin.py
-    ├── views.py
-    ├── urls.py
+    ├── views.py             # Páginas públicas, cuentas, panel, revisión y CRUD de recursos
+    ├── urls.py              # app_name = "pages"
     ├── tests.py
     ├── migrations/
-    └── templates/pages/
+    └── templates/pages/     # base, home, resources, resource_detail, resource_form,
+                             # resource_confirm_delete, about, signup, login, dashboard, review
 ```
 =======
 # Repositorio de laboratorios de Python
@@ -131,14 +133,14 @@ ejercicios y su proyecto final; no se reemplazan las versiones anteriores.
 | [laboratorio-02](laboratorio-02/) | Decisiones, ciclos y colecciones | Gestor de inventario (procedural) | `python gestor_inventario.py` dentro de su carpeta |
 | [laboratorio-03](laboratorio-03/) | Funciones, módulos y POO | Gestor de inventario con clases | `cd` a `gestor_inventario` y `python main.py` |
 | [laboratorio-04](laboratorio-04/) | Excepciones, archivos y persistencia | Gestor de inventario persistente (JSON y CSV) | `cd` a `gestor_inventario` y `python main.py` |
-| [laboratorio-06](laboratorio-06/) | Fundamentos de Django: URLs, vistas y plantillas | ClassroomHub (sitio web de 3 páginas) | `cd laboratorio-06`, crear y activar el entorno virtual, `python -m pip install -r requirements.txt` y `python manage.py runserver` |
+| [laboratorio-06-07-08-09](laboratorio-06-07-08-09/) | Django: URLs, vistas, plantillas, base de datos, autenticación y CRUD | ClassroomHub (catálogo en MariaDB/MySQL con cuentas, permisos y CRUD de recursos) | `cd laboratorio-06-07-08-09/classroom-hub`, crear y activar el entorno virtual, `python -m pip install -r requirements.txt`, copiar `.env.example` a `.env` y completarlo, `python manage.py migrate` y `python manage.py runserver` |
 
 Según el equipo, `python` puede ser `py` o `python3`.
 
-## Notas sobre el laboratorio 6
+## Notas sobre el laboratorio 6, 7, 8 y 9
 
 - Usa Django 6.1.3 con Python 3.12 o superior. Requiere su propio entorno virtual (`.venv`), que no se sube al repositorio.
 - Rutas disponibles: `/`, `/resources/` y `/about/`.
 - Pruebas: `python manage.py test pages`.
-- Instrucciones completas en el [README del laboratorio](laboratorio-06/README.md).
+- Instrucciones completas en el [README del laboratorio](laboratorio-06-07-08-09/README.md).
 >>>>>>> f761b3e7de80d8f339aeb439f3fe1f998cd211cb
