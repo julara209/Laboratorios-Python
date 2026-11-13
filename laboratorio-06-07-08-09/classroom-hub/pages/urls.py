@@ -42,4 +42,9 @@ urlpatterns = [
         views.ResourceUpdateView.as_view(),
         name="resource-update",
     ),
+        path(
+        "resources/<int:pk>/delete/",
+        views.ResourceDeleteView.as_view(),
+        name="resource-delete",
+    ),
 ]
