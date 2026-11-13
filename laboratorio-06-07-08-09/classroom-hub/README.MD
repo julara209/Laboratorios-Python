@@ -1,8 +1,8 @@
 # ClassroomHub
 
-ClassroomHub es un portal de recursos de aprendizaje construido con Django (Laboratorios 6, 7 y 8). Los recursos y las categorías se guardan en una base de datos MariaDB/MySQL, se administran desde Django Admin y se muestran en páginas públicas de solo lectura. Desde el Laboratorio 8 la aplicación también tiene **registro de cuentas, inicio y cierre de sesión, un panel privado y una página de revisión restringida por permisos**.
+ClassroomHub es un portal de recursos de aprendizaje construido con Django (Laboratorios 6 a 9). Los recursos y las categorías se guardan en una base de datos MariaDB/MySQL. Las páginas públicas son de solo lectura, las cuentas pueden registrarse e iniciar sesión, y desde el Laboratorio 9 las personas autorizadas pueden **crear, editar y eliminar recursos desde la propia aplicación**, con un permiso distinto para cada operación.
 
-El recorrido que practica el proyecto es **modelo → base de datos → vista → plantilla**, ahora con tres niveles de acceso: visitante anónimo, usuario autenticado y usuario autorizado.
+El recorrido que practica el proyecto es **modelo → base de datos → vista → plantilla**, con cuatro niveles de acceso: visitante anónimo, cuenta autenticada, revisor (`Catalog reviewers`) y editor (`Catalog editors`).
 
 ## Requisitos
 
@@ -17,7 +17,7 @@ El recorrido que practica el proyecto es **modelo → base de datos → vista �
 
    ```bash
    git clone https://github.com/julara209/Laboratorios-Python.git
-   cd Laboratorios-Python/laboratorio-08/classroom-hub
+   cd Laboratorios-Python/laboratorio-06-07-08-09/classroom-hub
    ```
 
 2. Crea y activa el entorno virtual:
@@ -59,10 +59,6 @@ copy .env.example .env         # Windows
 
 Variables: `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`. El archivo `.env` contiene secretos y **no se versiona**. Nunca subas contraseñas reales, cookies de sesión ni exportaciones de la base con datos privados.
 
-## Conexión
-
-`config/settings.py` usa el backend `django.db.backends.mysql` (válido tanto para MySQL como para MariaDB) con el controlador `mysqlclient`, y lee los datos de conexión desde `.env`.
-
 ## Migraciones y superusuario
 
 ```bash
@@ -70,7 +66,11 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-`migrate` también crea las tablas de cuentas, grupos, permisos y sesiones de Django (`auth_*` y `django_session`). Los archivos de migración (`pages/migrations/`) sí se versionan; el contenido de la base no.
+El CRUD de recursos usa las tablas que ya existen: el Laboratorio 9 no añade modelos ni migraciones. Los archivos de `pages/migrations/` se versionan; el contenido de la base no.
+
+## Datos de ejemplo
+
+Las categorías se gestionan solo desde Django Admin (`/admin/`). Antes de crear recursos, crea al menos una categoría en **Pages > Categories**, porque el formulario de recursos ofrece únicamente las categorías existentes.
 
 ## Ejecución
 
@@ -79,34 +79,43 @@ python manage.py check
 python manage.py runserver
 ```
 
-| Ruta | Acceso | Descripción |
+| Ruta | Método | Acceso | Descripción |
+|---|---|---|---|
+| `/` | GET | Público | Página principal |
+| `/resources/` | GET | Público | Catálogo guardado en la base, con enlace al detalle |
+| `/resources/<pk>/` | GET | Público | Detalle de un recurso (404 si no existe) |
+| `/resources/available/` | GET | Público | Solo recursos disponibles (solo lectura) |
+| `/about/` | GET | Público | Propósito del proyecto |
+| `/resources/new/` | GET, POST | `pages.add_resource` | Crear un recurso |
+| `/resources/<pk>/edit/` | GET, POST | `pages.change_resource` | Editar un recurso existente |
+| `/resources/<pk>/delete/` | GET, POST | `pages.delete_resource` | GET muestra la confirmación; POST elimina |
+| `/resources/review/` | GET | `pages.view_resource` | Revisión de solo lectura del catálogo |
+| `/accounts/signup/` | GET, POST | Público | Registro de cuentas comunes |
+| `/accounts/login/` | GET, POST | Público | Inicio de sesión |
+| `/accounts/logout/` | POST | Autenticado | Cierre de sesión; un GET responde `405` |
+| `/dashboard/` | GET | Autenticado | Panel privado con contador en la sesión |
+| `/admin/` | — | Personal (`is_staff`) | Django Admin: categorías, recursos, usuarios y grupos |
+
+Sin sesión, las rutas protegidas redirigen al login; con sesión pero sin el permiso correspondiente responden `403`.
+
+## Grupos y permisos
+
+Los permisos **no** se asignan desde el registro público: `/accounts/signup/` crea cuentas sin grupos ni privilegios. Los asigna una persona administradora.
+
+| Grupo | Permisos | Qué puede hacer |
 |---|---|---|
-| `/` | Público | Página principal |
-| `/resources/` | Público | Recursos guardados en la base, con su categoría |
-| `/resources/available/` | Público | Solo recursos disponibles (solo lectura) |
-| `/about/` | Público | Propósito del proyecto |
-| `/accounts/signup/` | Público | Registro de cuentas comunes |
-| `/accounts/login/` | Público | Inicio de sesión (`LoginView`) |
-| `/accounts/logout/` | Solo POST | Cierre de sesión (`LogoutView`); un GET responde `405` |
-| `/dashboard/` | Autenticado | Panel privado con un contador guardado en la sesión |
-| `/resources/review/` | Permiso `pages.view_resource` | Revisión del catálogo; sin sesión redirige al login y sin permiso responde `403` |
-| `/admin/` | Personal (`is_staff`) | Django Admin para mantener categorías, recursos, usuarios y grupos |
+| `Catalog reviewers` | `view_resource` | Abrir `/resources/review/` (solo lectura) |
+| `Catalog editors` | `view_resource`, `add_resource`, `change_resource`, `delete_resource` | Revisar, crear, editar y eliminar recursos |
 
-Cualquier otra dirección responde con `404`.
+Ninguno de los dos grupos concede `is_staff`: las vistas dependen de permisos, no de ser administrador.
 
-## Cuentas, grupos y permisos
-
-- **Registro:** `/accounts/signup/` usa `UserCreationForm` y crea cuentas comunes, sin `is_staff` ni `is_superuser`. Después de registrarse hay que iniciar sesión.
-- **Cierre de sesión:** se hace con un formulario `POST` con `{% csrf_token %}` (botón *Log out* del menú), no con un enlace.
-- **Grupo revisor:** `/resources/review/` solo la ven las cuentas con el permiso `pages.view_resource`. Para otorgarlo, crea el grupo **Catalog reviewers**.
-
-### Crear el grupo desde Django Admin
+### Crear el grupo de editores desde Django Admin
 
 1. Entra en `/admin/` con el superusuario.
-2. En **Groups**, crea `Catalog reviewers` y añade el permiso `pages | resource | Can view resource`.
-3. En **Users**, abre la cuenta que será revisora y agrégala al grupo. No marques *Staff status* ni *Superuser status*: no hacen falta.
+2. En **Groups**, crea `Catalog editors` y añade los cuatro permisos `pages | resource | Can view / add / change / delete resource`.
+3. En **Users**, abre una cuenta de demostración y agrégala al grupo. No marques *Staff status* ni *Superuser status*.
 
-### Crear el grupo desde el shell
+### Crear el grupo de editores desde el shell
 
 ```bash
 python manage.py shell
@@ -119,21 +128,27 @@ from django.contrib.contenttypes.models import ContentType
 from pages.models import Resource
 
 content_type = ContentType.objects.get_for_model(Resource)
-view_permission = Permission.objects.get(content_type=content_type, codename="view_resource")
+codes = ["view_resource", "add_resource", "change_resource", "delete_resource"]
+permissions = list(Permission.objects.filter(content_type=content_type, codename__in=codes))
 
-reviewers, _ = Group.objects.get_or_create(name="Catalog reviewers")
-reviewers.permissions.add(view_permission)
+if len(permissions) != len(codes):
+    raise RuntimeError("Expected resource permissions were not found")
+
+editors, _ = Group.objects.get_or_create(name="Catalog editors")
+editors.permissions.add(*permissions)
 
 User = get_user_model()
 account = User.objects.get(username="NOMBRE_DE_USUARIO")
-account.groups.add(reviewers)
+account.groups.add(editors)
 
 # Vuelve a leer el usuario: Django guarda los permisos en caché en cada instancia
 account = User.objects.get(pk=account.pk)
-print(account.has_perm("pages.view_resource"))   # True
+print(account.has_perm("pages.change_resource"))   # True
 ```
 
-Un superusuario siempre tiene todos los permisos, por lo que no sirve para comprobar el `403`: usa una cuenta común.
+El grupo `Catalog reviewers` se crea igual, con el permiso `view_resource` únicamente.
+
+Un superusuario siempre tiene todos los permisos, por lo que no sirve para comprobar un `403`: usa cuentas comunes o de grupo.
 
 ## Pruebas
 
@@ -143,7 +158,15 @@ python manage.py makemigrations --check --dry-run
 python manage.py test pages
 ```
 
-Las pruebas usan una base descartable (`test_classroom_hub`) que Django crea y elimina, sin tocar los datos reales. Son **30 pruebas**: las 12 del Laboratorio 7 (páginas, lectura desde la base, relación con la categoría, protección `PROTECT` y ruta de recursos disponibles) y 18 del Laboratorio 8 que verifican registro, login, logout por POST, protección CSRF, sesión, redirecciones y los accesos `302`, `403` y `200` de `/resources/review/`.
+Las pruebas usan una base descartable (`test_classroom_hub`) que Django crea y elimina, sin tocar los datos reales. Son **60 pruebas**: 12 del Laboratorio 7 (páginas, lectura desde la base, relación con la categoría, protección `PROTECT` y `/resources/available/`), 18 del Laboratorio 8 (registro, login, logout por POST, CSRF, sesiones y revisión) y 30 del Laboratorio 9 (`ResourceCrudTests`: detalle, creación, edición, eliminación, validación, permisos, 404 y CSRF).
+
+## Seguridad
+
+- Cada operación del CRUD comprueba su permiso en el servidor; ocultar un enlace en la plantilla no sustituye esa comprobación.
+- Los formularios incluyen `{% csrf_token %}` y no se usa `csrf_exempt`.
+- La eliminación requiere una confirmación y un `POST`; un `GET` nunca borra datos.
+- `ResourceForm` declara los campos editables de forma explícita (`title`, `description`, `resource_type`, `category`, `available`).
+- Credenciales, `.env` y cookies de sesión no se versionan.
 
 ## Estructura
 
@@ -156,10 +179,12 @@ classroom-hub/
 ├── config/                  # Configuración del proyecto
 └── pages/
     ├── models.py            # Category y Resource
+    ├── forms.py             # ResourceForm (ModelForm)
     ├── admin.py
-    ├── views.py             # Páginas públicas, signup, dashboard y resource_review
+    ├── views.py             # Páginas públicas, cuentas, panel, revisión y CRUD de recursos
     ├── urls.py              # app_name = "pages"
     ├── tests.py
     ├── migrations/
-    └── templates/pages/     # base, home, resources, about, signup, login, dashboard, review
+    └── templates/pages/     # base, home, resources, resource_detail, resource_form,
+                             # resource_confirm_delete, about, signup, login, dashboard, review
 ```
