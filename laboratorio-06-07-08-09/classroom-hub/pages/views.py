@@ -1,10 +1,16 @@
-from django.shortcuts import render
-from .models import Resource
-from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import redirect, render
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import login_required, permission_required
-from django.views.generic import DetailView
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+)
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, DetailView
+
+from .forms import ResourceForm
+from .models import Resource
+
 
 def home(request):
     context = {
@@ -26,6 +32,14 @@ def available_resources(request):
     }
     return render(request, "pages/resources.html", context)
 
+
+def about(request):
+    context = {
+        "purpose": "Practice URL routing, views, and templates.",
+    }
+    return render(request, "pages/about.html", context)
+
+
 def signup(request):
     if request.user.is_authenticated:
         return redirect("pages:dashboard")
@@ -39,11 +53,7 @@ def signup(request):
         form = UserCreationForm()
 
     return render(request, "pages/signup.html", {"form": form})
-def about(request):
-    context = {
-        "purpose": "Practice URL routing, views, and templates.",
-    }
-    return render(request, "pages/about.html", context)
+
 
 @login_required
 def dashboard(request):
@@ -56,6 +66,7 @@ def dashboard(request):
         {"visit_count": visit_count},
     )
 
+
 @login_required
 @permission_required("pages.view_resource", raise_exception=True)
 def resource_review(request):
@@ -64,7 +75,20 @@ def resource_review(request):
     }
     return render(request, "pages/review.html", context)
 
+
 class ResourceDetailView(DetailView):
     model = Resource
     template_name = "pages/resource_detail.html"
     context_object_name = "resource"
+
+
+class ResourceCreateView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    CreateView,
+):
+    model = Resource
+    form_class = ResourceForm
+    template_name = "pages/resource_form.html"
+    permission_required = "pages.add_resource"
+    success_url = reverse_lazy("pages:resources")

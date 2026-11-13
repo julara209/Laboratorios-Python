@@ -10,6 +10,21 @@ urlpatterns = [
     path("about/", views.about, name="about"),
     path("resources/", views.resources, name="resources"),
     path("resources/available/", views.available_resources, name="available"),
+    path(
+        "resources/review/",
+        views.resource_review,
+        name="resource-review",
+    ),
+    path(
+        "resources/new/",
+        views.ResourceCreateView.as_view(),
+        name="resource-create",
+    ),
+    path(
+        "resources/<int:pk>/",
+        views.ResourceDetailView.as_view(),
+        name="resource-detail",
+    ),
     path("accounts/signup/", views.signup, name="signup"),
     path(
         "accounts/login/",
@@ -22,10 +37,4 @@ urlpatterns = [
         name="logout",
     ),
     path("dashboard/", views.dashboard, name="dashboard"),
-    path("resources/review/", views.resource_review, name="resource-review"),
-        path(
-        "resources/<int:pk>/",
-        views.ResourceDetailView.as_view(),
-        name="resource-detail",
-    ),
 ]
